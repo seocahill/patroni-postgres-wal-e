@@ -1,0 +1,90 @@
+version: '3.3'
+services:
+
+  haproxy:
+    image: haproxy:alpine
+    ports:
+        - "5000:5000"
+        - "5001:5001"
+    secrets: 
+      - haproxy_cfg
+    command:
+      - haproxy
+      - -f 
+      - /run/secrets/haproxy_cfg
+  
+  etcdnode1:
+    image: quay.io/coreos/etcd:v3.1.2
+    volumes:
+      - etcd_data:/etcd_data
+    entrypoint: etcd
+    command:
+      - -name
+      - etcdnode1
+      - --data-dir
+      - /etcd_data
+      - -advertise-client-urls
+      - http://etcdnode1:2379
+      - -listen-client-urls
+      - http://0.0.0.0:2379
+      - -initial-advertise-peer-urls
+      - http://etcdnode1:2380
+      - -listen-peer-urls
+      - http://0.0.0.0:2380
+      - -initial-cluster
+      - etcdnode1=http://etcdnode1:2380
+
+  dbnode1:
+    image: seocahill/patroni:1.2.5
+    volumes:
+        - db-1-data:/data
+        - ./patroni.yml:/patroni.yml
+        - ./config/wal-e:/etc/wal-e.d/env
+    env_file:
+      - db-1.env
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+    entrypoint: patroni
+    command: ./patroni.yml
+
+  dbnode2:
+    image: seocahill/patroni:1.2.5
+    volumes:
+      - db-2-data:/data
+      - ./patroni.yml:/patroni.yml
+      - ./config/wal-e:/etc/wal-e.d/env
+    env_file:
+      - db-2.env
+    deploy:
+      placement:
+        constraints:
+          - node.role == worker
+    entrypoint: patroni
+    command: ./patroni.yml
+    
+  dbnode3:
+    image: seocahill/patroni:1.2.5
+    volumes:
+      - db-3-data:/data
+      - ./patroni.yml:/patroni.yml
+      - ./config/wal-e:/etc/wal-e.d/env
+    env_file:
+      - db-3.env
+    deploy:
+      placement:
+        constraints:
+          - node.role == worker
+    entrypoint: patroni
+    command: ./patroni.yml
+
+volumes:
+  db-1-data:
+  db-2-data:
+  db-3-data:
+  etcd_data:
+
+secrets:
+   haproxy_cfg:
+     file: config/haproxy.cfg
