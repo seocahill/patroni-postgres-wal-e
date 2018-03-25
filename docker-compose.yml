@@ -35,7 +35,7 @@ services:
       - etcdnode1=http://etcdnode1:2380
 
   dbnode1:
-    image: seocahill/patroni:1.2.5
+    image: seocahill/patroni
     volumes:
         - db-1-data:/data
         - ./patroni.yml:/patroni.yml
@@ -50,7 +50,7 @@ services:
     command: ./patroni.yml
 
   dbnode2:
-    image: seocahill/patroni:1.2.5
+    image: seocahill/patroni
     volumes:
       - db-2-data:/data
       - ./patroni.yml:/patroni.yml
