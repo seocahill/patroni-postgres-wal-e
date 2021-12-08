@@ -14,7 +14,7 @@ services:
       - /run/secrets/haproxy_cfg
 
   etcdnode1:
-    image: quay.io/coreos/etcd:v3.1.2
+    image: quay.io/coreos/etcd:v3.5.0
     volumes:
       - etcd_data:/etcd_data
     entrypoint: etcd
@@ -36,7 +36,7 @@ services:
 
   dbnode1:
     build: .
-    image: mazzolino/patroni:1.6.0
+    image: mazzolino/patroni:2.1.1
     hostname: dbnode1
     volumes:
         - db-1-data:/data
@@ -44,7 +44,7 @@ services:
     env_file:
       - .env
     environment:
-      PATRONI_ETCD_HOST: etcdnode1:2379
+      PATRONI_ETCD3_HOST: etcdnode1:2379
     deploy:
       placement:
         constraints:
@@ -54,7 +54,7 @@ services:
 
   dbnode2:
     build: .
-    image: mazzolino/patroni:1.6.0
+    image: mazzolino/patroni:2.1.1
     hostname: dbnode2
     volumes:
       - db-2-data:/data
@@ -62,7 +62,7 @@ services:
     env_file:
       - .env
     environment:
-      PATRONI_ETCD_HOST: etcdnode1:2379
+      PATRONI_ETCD3_HOST: etcdnode1:2379
     deploy:
       placement:
         constraints:
@@ -72,7 +72,7 @@ services:
 
   dbnode3:
     build: .
-    image: mazzolino/patroni:1.6.0
+    image: mazzolino/patroni:2.1.1
     hostname: dbnode3
     volumes:
       - db-3-data:/data
@@ -80,7 +80,7 @@ services:
     env_file:
       - .env
     environment:
-      PATRONI_ETCD_HOST: etcdnode1:2379
+      PATRONI_ETCD3_HOST: etcdnode1:2379
     deploy:
       placement:
         constraints:
