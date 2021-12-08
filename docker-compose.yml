@@ -88,6 +88,15 @@ services:
     depends_on:
       - etcdnode1
 
+  healthcheck:
+    build:
+      context: healthcheck
+    image: mazzolino/patroni-healthcheck:2
+    env_file: .env.healthcheck
+    environment:
+      - PATRONI_URL=http://haproxy:8008
+      - SLEEP_TIME=30
+
 volumes:
   db-1-data:
   db-2-data:
