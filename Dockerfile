@@ -1,4 +1,4 @@
-FROM postgres:12
+FROM postgres:14.2
 
 ENV WALE_VERSION=1.1.0
 
