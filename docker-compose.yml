@@ -1,20 +1,20 @@
-version: '3.3'
-services:
+version: '3.7'
 
+services:
   haproxy:
     image: haproxy:alpine
     ports:
-        - "5000:5000"
-        - "5001:5001"
-    secrets: 
+      - "5000:5000"
+      - "5001:5001"
+    secrets:
       - haproxy_cfg
     command:
       - haproxy
-      - -f 
+      - -f
       - /run/secrets/haproxy_cfg
-  
+
   etcdnode1:
-    image: quay.io/coreos/etcd:v3.1.2
+    image: quay.io/coreos/etcd:v3.5.4
     volumes:
       - etcd_data:/etcd_data
     entrypoint: etcd
@@ -35,49 +35,67 @@ services:
       - etcdnode1=http://etcdnode1:2380
 
   dbnode1:
-    image: seocahill/patroni:1.2.5
+    build: .
+    image: mazzolino/patroni:2.1.3
+    hostname: dbnode1
     volumes:
         - db-1-data:/data
-        - ./patroni.yml:/patroni.yml
         - ./config/wal-e:/etc/wal-e.d/env
     env_file:
-      - db-1.env
+      - .env
+    environment:
+      PATRONI_ETCD3_HOST: etcdnode1:2379
     deploy:
       placement:
         constraints:
           - node.role == manager
-    entrypoint: patroni
-    command: ./patroni.yml
+    depends_on:
+      - etcdnode1
 
   dbnode2:
-    image: seocahill/patroni:1.2.5
+    build: .
+    image: mazzolino/patroni:2.1.3
+    hostname: dbnode2
     volumes:
       - db-2-data:/data
-      - ./patroni.yml:/patroni.yml
       - ./config/wal-e:/etc/wal-e.d/env
     env_file:
-      - db-2.env
+      - .env
+    environment:
+      PATRONI_ETCD3_HOST: etcdnode1:2379
     deploy:
       placement:
         constraints:
           - node.role == worker
-    entrypoint: patroni
-    command: ./patroni.yml
-    
+    depends_on:
+      - etcdnode1
+
   dbnode3:
-    image: seocahill/patroni:1.2.5
+    build: .
+    image: mazzolino/patroni:2.1.3
+    hostname: dbnode3
     volumes:
       - db-3-data:/data
-      - ./patroni.yml:/patroni.yml
       - ./config/wal-e:/etc/wal-e.d/env
     env_file:
-      - db-3.env
+      - .env
+    environment:
+      PATRONI_ETCD3_HOST: etcdnode1:2379
     deploy:
       placement:
         constraints:
           - node.role == worker
-    entrypoint: patroni
-    command: ./patroni.yml
+    depends_on:
+      - etcdnode1
+
+  healthcheck:
+    build:
+      context: healthcheck
+    image: mazzolino/patroni-healthcheck:2
+    env_file: .env.healthcheck
+    environment:
+      - PATRONI_URL=http://haproxy:8008
+      - SLEEP_TIME=30
 
 volumes:
   db-1-data:

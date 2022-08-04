@@ -1,0 +1,31 @@
+bootstrap:
+  dcs:
+    postgresql:
+      use_pg_rewind: true
+      # uncomment to enable wal-e at init
+      # parameters:
+      #   archive_mode: "on"
+      #   archive_command: envdir "/etc/wal-e.d/env" wal-e wal-push "%p"
+      # recovery_conf:
+      #   restore_command: envdir "/etc/wal-e.d/env" wal-e wal-fetch "%f" "%p"
+      #callbacks:
+        #on_start: /home/postgres/notification.py
+        #on_stop: /home/postgres/notification.py
+        #on_restart: /home/postgres/notification.py
+        #on_reload: /home/postgres/notification.py
+        #on_role_change: /home/postgres/notification.py
+  pg_hba:
+    - host all all 0.0.0.0/0 md5
+    - host replication replicator samenet md5
+
+postgresql:
+  listen: "0.0.0.0:5432"
+  pgpass: /home/postgres/.pgpass
+  authentication:
+    replication:
+      username: replicator
+    rewind:
+      username: rewind
+
+restapi:
+  listen: 0.0.0.0:8008
