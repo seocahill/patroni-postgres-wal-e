@@ -1,6 +1,6 @@
-FROM postgres:14.2
+FROM postgres:15.0
 
-ENV WALE_VERSION=1.1.0
+ENV WALE_VERSION=1.1.1
 
 RUN export DEBIAN_FRONTEND=noninteractive \
     && apt-get update \
