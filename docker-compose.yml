@@ -35,8 +35,12 @@ services:
       - etcdnode1=http://etcdnode1:2380
 
   dbnode1:
-    build: .
-    image: mazzolino/patroni:2.1.4
+    build: &build
+      context: .
+      args:
+        - POSTGRES_VERSION=15.2
+        - PATRONI_VERSION=2.1.7
+    image: mazzolino/patroni:2.1.7-postgres15
     hostname: dbnode1
     volumes:
         - db-1-data:/data
@@ -53,8 +57,8 @@ services:
       - etcdnode1
 
   dbnode2:
-    build: .
-    image: mazzolino/patroni:2.1.4
+    build: *build
+    image: mazzolino/patroni:2.1.7-postgres15
     hostname: dbnode2
     volumes:
       - db-2-data:/data
@@ -71,8 +75,8 @@ services:
       - etcdnode1
 
   dbnode3:
-    build: .
-    image: mazzolino/patroni:2.1.4
+    build: *build
+    image: mazzolino/patroni:2.1.7-postgres15
     hostname: dbnode3
     volumes:
       - db-3-data:/data
