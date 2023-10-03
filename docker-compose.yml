@@ -38,9 +38,9 @@ services:
     build: &build
       context: .
       args:
-        - POSTGRES_VERSION=15.2
-        - PATRONI_VERSION=2.1.7
-    image: mazzolino/patroni:2.1.7-postgres15
+        - POSTGRES_VERSION=16.0
+        - PATRONI_VERSION=3.1.2
+    image: mazzolino/patroni:3.1.2-postgres16
     hostname: dbnode1
     volumes:
         - db-1-data:/data
@@ -58,7 +58,7 @@ services:
 
   dbnode2:
     build: *build
-    image: mazzolino/patroni:2.1.7-postgres15
+    image: mazzolino/patroni:3.1.2-postgres16
     hostname: dbnode2
     volumes:
       - db-2-data:/data
@@ -76,7 +76,7 @@ services:
 
   dbnode3:
     build: *build
-    image: mazzolino/patroni:2.1.7-postgres15
+    image: mazzolino/patroni:3.1.2-postgres16
     hostname: dbnode3
     volumes:
       - db-3-data:/data
@@ -100,6 +100,8 @@ services:
     environment:
       - PATRONI_URL=http://haproxy:8008
       - SLEEP_TIME=30
+    depends_on:
+      - haproxy
 
 volumes:
   db-1-data:

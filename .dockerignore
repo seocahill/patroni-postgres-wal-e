@@ -5,6 +5,7 @@ VERSION
 README.md
 Changelog.md
 Makefile
+Dockerfile
 docker-compose.yml
 docs
 .env*
